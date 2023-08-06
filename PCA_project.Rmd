@@ -15,15 +15,96 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r cars}
-summary(cars)
-```
+#summary(cars)
+#```
+#Instal required packages
 
+#install.packages("FactoMineR")
+#install.packages("ggfortify")
+#install.packages("factoextra")
+#install.packages("scatterplot3d")
+
+#Include required libraries 
+library(FactoMineR)
+library(ggfortify)
+library(factoextra)
+library(scatterplot3d)
+
+data(wine)
+dim(wine)
+
+wine_data <- wine[,c(1,11,13,22,24,26,27,28,29,30)]
+head(wine_data)                 #Display few data
+# Find the principal components
+wine_pca <- prcomp(wine_data[,-1],
+                   scale=TRUE)
+PC <- as.data.frame(wine_pca$x)
+head(PC)
+
+
+PC$Label<-wine_data$Label
+
+plot(PC$PC1,
+     PC$PC2,
+     col = PC$Label,
+     pch = 19,
+     main="Figure 1: 2D Scatterplot",
+     xlab="PC1",
+     ylab="PC2")
+ 
+legend("bottomright", 
+       legend = levels(PC$Label), 
+       col = seq_along(levels(PC$Label)), 
+       pch = 19)
+ 
+legend("bottomright", 
+       legend = levels(PC$Label), 
+       col = seq_along(levels(PC$Label)), 
+       pch = 19)
+
+ggplot(PC, 
+       aes(x = PC1, 
+       y = PC2, 
+       color = Label)) +
+       geom_point() +
+       scale_color_manual(values=c("black", "#CC0066", "green2")) +
+       stat_ellipse() + ggtitle("Figure 2: Ellipse Plot") +
+       theme_bw()
+
+plot_3d <- with(PC, 
+                scatterplot3d(PC$PC1, 
+                              PC$PC2, 
+                              PC$PC3, 
+                              color = as.numeric(Label), 
+                              pch = 19, 
+                              main ="Figure 3: 3D Scatter Plot", 
+                              xlab="PC1",
+                              ylab="PC2",
+                              zlab="PC3"))
+ 
+legend(plot_3d$xyz.convert(0.5, 0.7, 0.5), 
+       pch = 19, 
+       yjust=0,
+       legend = levels(PC$Label), 
+       col = seq_along(levels(PC$Label)))
+
+fviz_pca_biplot(wine_pca, 
+                repel = TRUE,
+                col.var = "deepskyblue",
+                title = "Figure 4: Biplot", geom="point")
+
+fviz_eig(wine_pca, 
+         addlabels = TRUE, 
+         ylim = c(0, 70),
+         main="Figure 5: Scree Plot")
+
+```
 ## Including Plots
 
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+#plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
