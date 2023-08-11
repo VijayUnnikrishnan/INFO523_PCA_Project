@@ -24,14 +24,21 @@ When you click the **Knit** button a document will be generated that includes bo
 #install.packages("factoextra")
 #install.packages("scatterplot3d")
 
+#Lets analyse the US crime and arrests using PCA 
 data("USArrests")  
 library(tidyverse)
 library(magrittr)
 library("corrplot")
+library("FactoMineR")
+library("factoextra")
 
-head(USArrests)
-
+#Get the summary of data 
+head(USArrests)  
+# Select only first 20 states data and scale it
 df <- USArrests[1:20,] %>%  scale()
+
+#Find the correlation matrix and plot it for 
+#Viszual analysis 
 cor_df <- cor(df)
 corrplot(cor_df, type="lower", order="hclust", 
          tl.col="black", tl.srt=45)
@@ -42,22 +49,18 @@ library("FactoMineR")
 library("factoextra")
 
 res.pca <- PCA(df, graph = FALSE)      #Perform PCA  
-eig.val <- get_eigenvalue(res.pca)     #Get the eigen values 
-summary(res.pca)                              #Display Eigen values 
+summary(res.pca)                       #Display Eigen values 
 
+#Plot Eigen values are variance contribution
 fviz_eig(res.pca, addlabels = TRUE)
 
-fviz_pca_var(res.pca, col.var = "black")
-
-library("corrplot")
 var <- get_pca_var(res.pca)
-corrplot(var$cos2, is.corr = FALSE)
-
+#Plot the original variable inclination on new component
 fviz_pca_var(res.pca, col.var = "cos2",
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
              repel = TRUE  )
 
-plot(prcomp(df)$x[,1:2],type="n")
+barplot(prcomp(df)$x[,1:2],type="n")
 text(prcomp(df)$x[,1:2],rownames(USArrests))
 
 # Contributions of variables to PC1
@@ -76,6 +79,11 @@ grp <- as.factor(res.km$cluster)
 fviz_pca_var(res.pca, col.var = grp, 
              palette = c("#0073C2FF", "#EFC000FF", "#868686FF"),
              legend.title = "Cluster")
+
+fviz_pca_ind(res.pca, col.ind = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+             )
 
 fviz_cos2(res.pca, choice = "ind", axes = 1) + coord_flip()
 
